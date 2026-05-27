@@ -214,6 +214,7 @@ Item {
         anchors.leftMargin: -border.width - ((canvas && canvas.anchors && canvas.anchors.leftMargin) ? canvas.anchors.leftMargin : 0)
         anchors.rightMargin: -border.width
         anchors.topMargin: -border.width
+        z: sep.z + 1
 
         visible: isTrackFocused
 
@@ -226,7 +227,7 @@ Item {
     SeparatorLine {
         id: sep
 
-        color: "transparent"
+        color: ui.theme.extra["tracks_divider_color"]
         anchors.bottom: parent.bottom
         thickness: 2
     }

@@ -279,7 +279,7 @@ ListItemBlank {
 
         anchors.bottom: parent.bottom
 
-        color: "transparent"
+        color: ui.theme.extra["tracks_divider_color"]
 
         thickness: 2
     }
