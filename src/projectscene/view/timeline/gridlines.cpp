@@ -24,19 +24,17 @@ void GridLines::paint(QPainter* painter)
     const qreal h = height();
     QPen pen = painter->pen();
     pen.setWidth(2);
-    QColor beatStrokeColor = uiconfiguration()->currentTheme().values.value(muse::ui::WHITE_COLOR).toString();
-    beatStrokeColor.setAlpha(static_cast<int>(0.1 * 256));
-    pen.setColor(beatStrokeColor);
+    pen.setColor(uiconfiguration()->currentTheme().extra.value("gridline_major_color").value<QColor>());
     painter->setPen(pen);
     painter->drawLine(QLineF(0, 0, 0, h));
-
-    // draw gridlines
-    drawGridLines(painter);
 
     // draw zebra highlighting (only for beats and measures)
     if (configuration()->timelineRulerMode() == TimelineRulerMode::BEATS_AND_MEASURES) {
         drawZebraHighlighting(painter);
     }
+
+    // draw gridlines
+    drawGridLines(painter);
 }
 
 TimelineRuler* GridLines::timelineRuler() const
@@ -69,10 +67,13 @@ void GridLines::setTimelineRuler(TimelineRuler* newTimelineRuler)
 void GridLines::drawGridLines(QPainter* painter)
 {
     const qreal h = height();
-    QColor beatStrokeColor = uiconfiguration()->currentTheme().values.value(muse::ui::WHITE_COLOR).toString();
-    beatStrokeColor.setAlpha(static_cast<int>(0.06 * 256));
-    QColor majorBeatStrokeColor = uiconfiguration()->currentTheme().values.value(muse::ui::WHITE_COLOR).toString();
-    majorBeatStrokeColor.setAlpha(static_cast<int>(0.1 * 256));
+    const auto& theme = uiconfiguration()->currentTheme();
+    // In HC themes minor gridlines follow the user-customisable text color;
+    // otherwise use the cfg-defined static color.
+    QColor beatStrokeColor = uiconfiguration()->isHighContrast()
+                             ? QColor(theme.values.value(muse::ui::FONT_PRIMARY_COLOR).toString())
+                             : theme.extra.value("gridline_minor_color").value<QColor>();
+    QColor majorBeatStrokeColor = theme.extra.value("gridline_major_color").value<QColor>();
 
     QPen pen = painter->pen();
     pen.setWidth(1);
@@ -98,8 +99,7 @@ void GridLines::drawZebraHighlighting(QPainter* painter)
 
     const qreal h = height();
     const qreal w = width();
-    QColor highlightColor = uiconfiguration()->currentTheme().values.value(muse::ui::WHITE_COLOR).toString();
-    highlightColor.setAlpha(static_cast<int>(0.02 * 256));
+    QColor highlightColor = uiconfiguration()->currentTheme().extra.value("gridline_zebra_color").value<QColor>();
 
     int BPM = m_timelineRuler->timelineContext()->BPM();
     double SPB = static_cast<double>(60) / BPM;
